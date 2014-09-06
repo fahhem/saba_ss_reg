@@ -1,0 +1,21 @@
+<form method="post">
+<h1>Student information</h1>
+{{student.as_p}}
+<h1>Emergency Information</h1>
+<p>Address: {{emerg_contact.address}}</p>
+<p>City: {{emerg_contact.city}}</p>
+<p>State: CA</p>
+<p>Zip: {{emerg_contact.zip_code}}</p>
+<p>Home Phone:{{emerg_contact.home_phone}}</p>
+<b>Father</b>:
+{{father.as_p}}
+<p>Email: {{emerg_contact.father_email}}</p>
+<b>Mother</b>:
+{{mother.as_p}}
+<p>Email: {{emerg_contact.mother_email}}</p>
+<b>Emergency contact</b> <u><i>other than</i> either parent</u>:
+{{other.as_p}}
+<p>Relationship: {{emerg_contact.other_relationship}}</p>
+<b>People authorized to pick up your children</b>
+<p>{{authorized}}</p>
+</form>

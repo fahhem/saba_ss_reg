@@ -1,0 +1,5 @@
+db.sqlite3
+*.saved.*
+*.pyc
+*.swp
+local_settings.py

@@ -1,0 +1,53 @@
+{% extends "admin/base_site.html" %}
+
+<!-- JAVASCRIPTS -->
+{% block javascripts %}
+    {{ block.super }}
+    <script type="text/javascript" charset="utf-8">
+        (function($) {
+            $(document).ready(function() {
+                var clicked = 1;
+                $('#next_link').click(function(ev){
+                    if (clicked < 3) {
+                        clicked++;
+                        ev.preventDefault();
+                    }
+                });
+            });
+        })(grp.jQuery);
+    </script>
+    {{ media }}
+{% endblock %}
+
+<!-- STYLESHEETS -->
+{% block stylesheets %}
+    {{ block.super }}
+<style>
+#user_id {
+  font-size: 20px;
+  text-align: center;
+  display: block;
+  margin-top:20px;
+}
+#next {
+  position: absolute;
+  bottom: 20px;
+}
+#thanks {
+  font-size: 3em;
+  height: 4em;
+  text-align: center;
+}
+</style>
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+<p id="thanks">
+Thank you! Please hand me back to {{user.get_full_name}}.
+<span id="user_id">ID: {{id}}</span>
+</p>
+<div id="next"><a id="next_link" href="{{next}}">Go back</a></div>
+
+{% endblock %}
+

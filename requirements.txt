@@ -1,0 +1,13 @@
+Django==1.7
+argparse==1.2.1
+django-adminactions==0.6
+django-grappelli==2.5.3
+django-localflavor==1.0
+django-multi-model-form==1.1.0
+django-registration==1.0
+handy==0.3
+pytz==2014.7
+unicodecsv==0.9.4
+wsgiref==0.1.2
+xlrd==0.9.3
+xlwt==0.7.5
