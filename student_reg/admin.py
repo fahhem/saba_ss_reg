@@ -3,6 +3,7 @@ from django import forms
 from django.db import models
 from django.contrib import admin
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.utils.datastructures import SortedDict
@@ -73,8 +74,26 @@ class BaseStudentAdminForm(forms.ModelForm):
           widget=forms.HiddenInput(), queryset=EmergencyContact.objects.all(),
           required=False)
   authorized_people = forms.CharField(widget=forms.Textarea(), required=False)
-  notes = forms.CharField(widget=PlainTextWidget(NOTES), label='Notes and Waiver')
-  liability = forms.CharField(widget=PlainTextWidget(LIABILITY), label='Liability and Responsibility')
+  notes = forms.CharField(widget=PlainTextWidget(NOTES), label='Notes and Waiver', required=False)
+  liability = forms.CharField(widget=PlainTextWidget(LIABILITY), label='Liability and Responsibility', required=False)
+  def clean(self):
+      super(BaseStudentAdminForm, self).clean()
+      ec = father = mother = None
+      # Not efficient, but I don't care.
+      if self.data.get('father'):
+          father = Person.objects.get(id=self.data['father'])
+      if self.data.get('mother'):
+          mother = Person.objects.get(id=self.data['mother'])
+      father = PersonForm(self.data, prefix='father', instance=father)
+      mother = PersonForm(self.data, prefix='mother', instance=mother)
+      if not father.is_valid() and not mother.is_valid():
+          raise ValidationError('Student requires at least one parent.')
+      if self.data.get('emergency_info_id'):
+        ec = EmergencyContact.objects.get(id=self.data['emergency_info_id'])
+      ec = EmergencyContactForm(self.data, instance=ec)
+      if not ec.is_valid():
+          ec.clean()
+
 extra_fields = {f.name: f.formfield() for f in EmergencyContact._meta.fields}
 extra_fields['address'].widget.attrs['size'] = 50
 prefix_person_fields = lambda prefix: SortedDict([
@@ -83,17 +102,23 @@ prefix_person_fields = lambda prefix: SortedDict([
 extra_fields['father'].widget = forms.HiddenInput()
 extra_fields['father'].required = False
 extra_fields.update(prefix_person_fields('father'))
+extra_fields['father-phone_number'].required = True
 extra_fields['father_email'].label = 'Email'
 
 extra_fields['mother'].widget = forms.HiddenInput()
 extra_fields['mother'].required = False
 extra_fields.update(prefix_person_fields('mother'))
+extra_fields['mother-phone_number'].required = True
 extra_fields['mother_email'].label = 'Email'
 
 extra_fields['other'].widget = forms.HiddenInput()
 extra_fields['other'].required = False
 extra_fields.update(prefix_person_fields('other'))
+extra_fields['other-phone_number'].required = True
 extra_fields['other_relationship'].label = 'Relationship'
+for name, field in extra_fields.iteritems():
+    if name.startswith('father') or name.startswith('mother'):
+        field.required = False
 StudentAdminForm = type('StudentAdminForm', (BaseStudentAdminForm,), extra_fields)
 
 @admin.register(EmergencyContact)
@@ -228,6 +253,8 @@ class StudentAdmin(admin.ModelAdmin):
 
   def saved_view(self, request, id):
     opts = self.model._meta
+    obj = Student.objects.get(id=id)
     next = reverse('admin:%s_%s_changelist' % (opts.app_label, opts.model_name))
-    return TemplateResponse(request, 'admin/saved.html', {'id': id, 'next': next})
+    next = reverse('admin:%s_%s_change' % (opts.app_label, opts.model_name), kwargs={'object_id': id})
+    return TemplateResponse(request, 'admin/saved.html', {'id': id, 'next': next, 'student': obj})
 

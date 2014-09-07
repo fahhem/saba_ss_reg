@@ -44,10 +44,12 @@
 <!-- CONTENT -->
 {% block content %}
 <p id="thanks">
-Thank you! Please hand me back to {{user.get_full_name}}.
+Thank you! Please hand me back{% if user.first_name %} to {{user.get_full_name}}{% endif %}.
 <span id="user_id">ID: {{id}}</span>
 </p>
+<p>You registered {{student.first_name}} {{student.last_name}}. Father's name is {{student.emergency_info.father.first_name}} {{student.emergency_info.father.last_name}}. Mother's name is {{student.emergency_info.mother.first_name}} {{student.emergency_info.mother.last_name}}. </p>
 <div id="next"><a id="next_link" href="{{next}}">Go back</a></div>
+<div id="next"><a id="next_link" href="{{view}}">View student</a></div>
 
 {% endblock %}
 

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 
 from student_reg.models import Student, EmergencyContact, Person
 
@@ -23,6 +24,11 @@ class EmergencyContactForm(forms.ModelForm):
     model = EmergencyContact
     exclude = ('state', 'father', 'mother', 'other', 'authorized')
   zip_code = usforms.USZipCodeField()
+
+  def clean(self):
+      if not self.data.get('father_email') and not self.data.get('mother_email'):
+          raise ValidationError('At least one parent email required.')
+      super(EmergencyContactForm, self).clean()
 
 class PersonForm(forms.ModelForm):
   class Meta:
